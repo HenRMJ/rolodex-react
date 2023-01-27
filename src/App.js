@@ -1,50 +1,33 @@
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 import CardList from './components/card-list/card-list.component';
 import SearchBox from './components/search-box/search-box.component';
-import logo from './logo.svg';
 import './App.css';
 
-class App extends Component {
-  constructor() {
-    super();
+const App = () => {
 
-    this.state = {
-      monsters: [],
-      searchField: ''
-    };
-  }
+  const [searchField, setSearchField] = useState('');
+  const [people, setPeople] = useState([]);
 
-  onSearchChange = (event) => {
-    const searchField = event.target.value.toLocaleLowerCase();
-    
-    this.setState(() => { 
-      return { searchField }
-    });
-  }
-
-  componentDidMount() {
+  useEffect(() => {
     fetch('https://jsonplaceholder.typicode.com/users')
     .then(response => response.json())
-    .then(monsters => this.setState(() => {
-      return { monsters } 
-    }));
+    .then(users => setPeople(users));
+  }, []);
+
+  const onSearchChange = (event) => {
+    const searchValue = event.target.value.toLocaleLowerCase();
+    setSearchField(searchValue);
   }
 
-  render() {
-    const { monsters, searchField } = this.state;
-    const { onSearchChange } = this;
+  const filteredPeople = people.filter(person => person.name.toLocaleLowerCase().includes(searchField));
 
-    const filteredMonsters = monsters.filter(monster => monster.name.toLocaleLowerCase().includes(searchField));
-
-    return (
-      <div className="App">
-        <h1 className='app-title'>Rolodex</h1>
-        <SearchBox onChangeHandler={ onSearchChange } placeholder="Search Monster" className="monsters-search-box"/>
-        <CardList monsters={ filteredMonsters }/>
-      </div>
-    );
-  }
-  
+  return (
+    <div className="App">
+      <h1 className='app-title'>Rolodex</h1>
+      <SearchBox onChangeHandler={onSearchChange} placeholder="Search someone" className="people-search-box"/>
+      <CardList people={ filteredPeople }/>
+    </div>
+  )
 }
 
 export default App;
